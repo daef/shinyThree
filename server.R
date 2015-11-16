@@ -1,12 +1,5 @@
 library(shiny)
 
-renderDummy <- function(expr, env=parent.frame(), quoted=FALSE) {
-  func <- exprToFunction(expr, env, quoted)
-  function() {
-    func()
-  }
-}
-
 shinyServer(function(input, output, session) {
   files <- list.files("meshes")
 
