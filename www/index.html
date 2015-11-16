@@ -14,35 +14,13 @@
   <script src="STLLoader.js"></script>
   <script src="TrackballControls.js"></script>
   <script>
-    function b64toBuffer(base64) {
-        var binary_string =  window.atob(base64);
-        var len = binary_string.length;
-        var bytes = new Uint8Array( len );
-        for (var i = 0; i < len; i++)        {
-            bytes[i] = binary_string.charCodeAt(i);
-        }
-        return bytes.buffer;
-    }
-
-    $('#mesh').on('js', function(evt, data){
-      var geom = loader.parse(b64toBuffer(data));
-      var mesh = new THREE.Mesh( geom, material );
-      scene.remove(current);
-      scene.add(current=mesh);
-      render();
+    Shiny.addCustomMessageHandler("binary", function(buffer) {
+        var geom = loader.parse(buffer);
+        var mesh = new THREE.Mesh( geom, material );
+        scene.remove(current);
+        scene.add(current=mesh);
+        render();
     });
-
-    var jsBind = new Shiny.OutputBinding();
-    $.extend(jsBind, {
-      find: function(scope) {
-        return $(scope).find('.shiny-js-output');
-      },
-      renderValue: function(el, data) {
-        $(el).trigger("js",[data]);
-      }
-    });
-    Shiny.outputBindings.register(jsBind, 'shiny.jsBind');
-
     init();
     render();
     loop();

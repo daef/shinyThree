@@ -7,17 +7,13 @@ renderDummy <- function(expr, env=parent.frame(), quoted=FALSE) {
   }
 }
 
-shinyServer(function(input, output) {
+shinyServer(function(input, output, session) {
   files <- list.files("meshes")
 
-  data <- reactive({
+  observe({
     file <- paste0("meshes/",files[input$n])
     len <- file.info(file)$size
-    base64enc::base64encode(readBin(file, what="raw", n=len));
-  })
-
-  output$mesh <- renderDummy({
-    data()
+    session$sendBinaryMessage(readBin(file, what="raw", n=len))
   })
 })
 
