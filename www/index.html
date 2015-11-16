@@ -11,6 +11,7 @@
   <div id="mesh" class="shiny-js-output"></div> 
 
   <script src="three.js"></script>
+  <script src="Projector.js"></script>
   <script src="STLLoader.js"></script>
   <script src="TrackballControls.js"></script>
   <script>
@@ -19,6 +20,13 @@
         var mesh = new THREE.Mesh( geom, material );
         scene.remove(current);
         scene.add(current=mesh);
+        bb = new THREE.Box3().setFromObject(mesh);
+        var cnt = new THREE.Vector3(
+          (bb.min.x + bb.max.x)/2.0,
+          (bb.min.y + bb.max.y)/2.0,
+          (bb.min.z + bb.max.z)/2.0);
+        controls.target = cnt;
+        controls.update();
         render();
     });
     init();
@@ -26,17 +34,16 @@
     loop();
 
     var container;
-    var camera, scene, renderer, loader, material;
-    var current;
+    var camera, scene, renderer, loader, material, bb;
+    var current, controls, size;
     function init() {
       //var size = {w:600, h:400};
-      var size = {w:window.innerWidth, h:window.innerHeight};
+      size = {w:window.innerWidth, h:window.innerHeight};
       window.addEventListener( 'resize', onWindowResize, false );
 
       container = document.getElementById("mesh");
-      //document.body.appendChild( container );
-
-      camera = new THREE.PerspectiveCamera( 60, size.w/size.h, 1, 100 );
+      
+      camera = new THREE.PerspectiveCamera( 60, size.w/size.h, 1, 1000 );
       camera.position.x = 10;
       camera.position.y = 2;
       camera.position.z = 5;
@@ -49,9 +56,11 @@
       scene.add( new THREE.HemisphereLight( 0x443333, 0x111122 ) );
       addShadowedLight( 0.5, 1, -1, 0xffff99, 1 );
 
+      bb = {}
       var geometry = new THREE.BoxGeometry( 2, 2, 2 );
       mesh = new THREE.Mesh( geometry, material );
       scene.add( current=mesh );
+      bb = new THREE.Box3().setFromObject(mesh);
 
       // renderer
       renderer = new THREE.WebGLRenderer( { antialias: true } );
@@ -93,9 +102,12 @@
       directionalLight.shadowBias = -0.005;
     }
     function onWindowResize() {
-      camera.aspect = window.innerWidth / window.innerHeight;
+      size = {w:window.innerWidth, h:window.innerHeight};
+      
+      camera.aspect = size.w / size.h;
       camera.updateProjectionMatrix();
-      renderer.setSize( window.innerWidth, window.innerHeight );
+      renderer.setSize( size.w, size.h );
+      
       render();
     }
     function loop() {
