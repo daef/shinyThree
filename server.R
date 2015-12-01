@@ -6,7 +6,7 @@ shinyServer(function(input, output, session) {
   observe({
     file <- paste0("meshes/",files[input$n])
     len <- file.info(file)$size
-    session$sendBinaryMessage(readBin(file, what="raw", n=len))
+    session$sendBinaryMessage("foo", readBin(file, what="raw", n=len))
   })
 })
 
